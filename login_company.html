@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Vault - Company Login</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="login.css" rel="stylesheet">
+    <style>
+        .company-features {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+        }
+        
+        .company-features h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .company-features ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .company-features li {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .company-features i {
+            color: #667eea;
+            margin-right: 0.5rem;
+        }
+    </style>
+    <header>
+  <nav>
+    <a href="skill-vault-website.html" class="home-btn">Home</a>
+  </nav>
+</header
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h2>Company Portal</h2>
+                <p>Sign in to your company account</p>
+            </div>
+            
+            <form id="companyLoginForm">
+                <div class="form-group">
+                    <label for="companyEmail">Company Email</label>
+                    <input type="email" id="companyEmail" class="form-input" placeholder="Enter company email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="companyPassword">Password</label>
+                    <input type="password" id="companyPassword" class="form-input" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="login-btn">
+                    <span class="btn-text">Sign In as Company</span>
+                    <span class="btn-loading" style="display: none;"><span class="loading"></span> Signing In...</span>
+                </button>
+            </form>
+            
+            <div class="company-features">
+                <h3>Company Benefits:</h3>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Post unlimited jobs</li>
+                    <li><i class="fas fa-check-circle"></i> Access premium talent</li>
+                    <li><i class="fas fa-check-circle"></i> Advanced analytics</li>
+                    <li><i class="fas fa-check-circle"></i> Dedicated support</li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center; margin-top: 1.5rem;">
+             <center>  <p>Individual account? <a href="login.html" style="color: #667eea; text-decoration: none;">Sign in here</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

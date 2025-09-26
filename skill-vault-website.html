@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Vault - Find & Hire Top Freelancers</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar.scrolled .nav-brand h1,
+        .navbar.scrolled .nav-links a {
+            color: #333;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .nav-brand h1 {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #fff, #f0f8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 5px rgba(255,255,255,0.3)); }
+            to { filter: drop-shadow(0 0 20px rgba(255,255,255,0.6)); }
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+      
+
+        .nav-links .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            padding: 0.7rem 1.5rem;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-links .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255,107,107,0.4);
+        }
+
+        /* Page Container */
+        .page-container {
+            display: none;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        .page-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.05)" points="0,0 1000,300 1000,1000 0,1000"/><polygon fill="rgba(255,255,255,0.03)" points="0,200 1000,0 1000,800 0,1000"/></svg>');
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(1deg); }
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 2rem;
+            z-index: 2;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            animation: slideInUp 1s ease-out;
+            background: linear-gradient(45deg, #fff, #f0f8ff, #e6f3ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            animation: slideInUp 1s ease-out 0.2s both;
+            opacity: 0.9;
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-bar {
+            display: flex;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            background: white;
+            border-radius: 50px;
+            padding: 0.5rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            animation: slideInUp 1s ease-out 0.4s both;
+            overflow: hidden;
+        }
+
+        .search-bar input {
+            flex: 1;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            outline: none;
+            background: transparent;
+            color: #333;
+        }
+
+        .search-bar input::placeholder {
+            color: #999;
+        }
+
+        .search-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .search-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(255,107,107,0.4);
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            animation: slideInUp 1s ease-out 0.6s both;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .stat:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .stat h3 {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .stat p {
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        /* Categories Section */
+        .categories {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border-radius: 2px;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .category-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .category-card:hover::before {
+            opacity: 0.9;
+        }
+
+        .category-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .category-card:hover * {
+            color: white;
+            z-index: 2;
+            position: relative;
+        }
+
+        .category-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .category-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .category-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Login Page */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+        }
+
+        .login-box {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+            animation: scaleIn 0.6s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h2 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 20px rgba(102,126,234,0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102,126,234,0.3);
+        }
+
+        .social-login {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 0.8rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .social-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        /* Post Job Page */
+        .post-job-container {
+            min-height: 100vh;
+            padding: 8rem 2rem 4rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .job-form {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        .job-form h2 {
+            font-size: 2.2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .job-form p {
+            color: #666;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+
+        .skills-input {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            background: #f8f9fa;
+            min-height: 60px;
+            align-items: center;
+        }
+
+        .skill-tag {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .skill-remove {
+            cursor: pointer;
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .skill-remove:hover {
+            opacity: 1;
+        }
+
+        .publish-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+
+        .publish-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(255,107,107,0.4);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .social-login {
+                flex-direction: column;
+            }
+
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Success Animation */
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 2;
+            stroke: #4bb71b;
+            stroke-miterlimit: 10;
+            margin: 10% auto;
+            box-shadow: inset 0px 0px 0px #4bb71b;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+
+        .success-checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: #4bb71b;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+
+        .success-checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+
+        @keyframes stroke {
+            100% { stroke-dashoffset: 0; }
+        }
+
+        @keyframes scale {
+            0%, 100% { transform: none; }
+            50% { transform: scale3d(1.1, 1.1, 1); }
+        }
+
+        @keyframes fill {
+            100% { box-shadow: inset 0px 0px 0px 30px #4bb71b; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1><i class="fas fa-vault"></i> Skill Vault</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/skill-vault-website.html" onclick="showPage('home')">Home</a></li>
+                <li><a href="#" onclick="showPage('browse')">Browse Jobs</a></li>
+                <li><a href="#" onclick="showPage('freelancers')">Find Freelancers</a></li>
+                <li><a href="#" onclick="showPage('post-job')">Post a Job</a></li>
+                <li><a href="/login.html" onclick="showPage('login')">Sign In</a></li>
+                <li><button class="btn" onclick="showPage('signup')">Join Now</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div id="home" class="page-container active">
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Find & Hire Expert Freelancers</h1>
+                <p>Connect with talented professionals from around the world and get your projects done with excellence</p>
+                
+                <div class="search-bar">
+                    <input type="text" placeholder="What service are you looking for today?">
+                    <button class="search-btn">
+                        <i class="fas fa-search"></i>
+                        Search
+                    </button>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat">
+                        <h3>2M+</h3>
+                        <p>Active Freelancers</p>
+                    </div>
+                    <div class="stat">
+                        <h3>500K+</h3>
+                        <p>Jobs Posted</p>
+                    </div>
+                    <div class="stat">
+                        <h3>98%</h3>
+                        <p>Customer Satisfaction</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="categories">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Popular Categories</h2>
+                    <p>Explore our top service categories</p>
+                </div>
+                
+                <div class="categories-grid">
+                    <div class="category-card">
+                        <div class="category-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h3>Web Development</h3>
+                        <p>Custom websites, web applications, and e-commerce solutions</p>
+                    </div>
+                    
+                    <div class="category-card">
+                        <div class="category-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <h3>Graphic Design</h3>
+                        <p>Logos, branding, UI/UX design, and creative illustrations</p>
+                    </div>
+                    
+                    <div class="category-card">
+                        <div class="category-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3>Mobile Apps</h3>
+                        <p>iOS and Android app development and mobile solutions</p>
+                    </div>
+                    
+                    <div class="category-card">
+                        <div class="category-icon">
+                            <i class="fas fa-pen"></i>
+                        </div>
+                        <h3>Content Writing</h3>
+                        <p>Blog posts, copywriting, technical writing, and SEO content</p>
+                    </div>
+                    
+                    <div class="category-card">
+                        <div class="category-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Digital Marketing</h3>
+                        <p>SEO, social media marketing, PPC campaigns, and analytics</p>
+                    </div>
+                    
+                    <div class="category-card">
+                        <div class="category-icon">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <h3>Video Editing</h3>
+                        <p>Professional video editing, animation, and motion graphics</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+ 
+    <!-- Post Job Page -->
+    <div id="post-job" class="page-container">
+        <div class="post-job-container">
+            <form class="job-form" id="jobForm">
+                <h2>Post a New Job</h2>
+                <p>Tell us about your project and find the perfect freelancer</p>
+                
+                <div class="form-group">
+                    <label for="jobTitle">Job Title *</label>
+                    <input type="text" id="jobTitle" class="form-input" placeholder="e.g., Build a responsive website" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">Category *</label>
+                        <select id="category" class="form-select" required>
+                            <option value="">Select Category</option>
+                            <option value="web-dev">Web Development</option>
+                            <option value="mobile-dev">Mobile Development</option>
+                            <option value="design">Graphic Design</option>
+                            <option value="writing">Content Writing</option>
+                            <option value="marketing">Digital Marketing</option>
+                            <option value="video">Video & Animation</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="budget">Budget Range *</label>
+                        <select id="budget" class="form-select" required>
+                            <option value="">Select Budget</option>
+                            <option value="under-500">Under $500</option>
+                            <option value="500-1000">$500 - $1,000</option>
+                            <option value="1000-5000">$1,000 - $5,000</option>
+                            <option value="5000-10000">$5,000 - $10,000</option>
+                            <option value="over-10000">$10,000+</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Project Description *</label>
+                    <textarea id="description" class="form-textarea" placeholder="Describe your project in detail. What do you need done? What are your requirements?" required></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="duration">Project Duration</label>
+                        <select id="duration" class="form-select">
+                            <option value="">Select Duration</option>
+                            <option value="less-than-week">Less than a week</option>
+                            <option value="1-4-weeks">1-4 weeks</option>
+                            <option value="1-3-months">1-3 months</option>
+                            <option value="3-6-months">3-6 months</option>
+                            <option value="ongoing">Ongoing project</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="experience">Experience Level</label>
+                        <select id="experience" class="form-select">
+                            <option value="">Any Level</option>
+                            <option value="beginner">Entry Level</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="expert">Expert Level</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="skills">Required Skills</label>
+                    <div class="skills-input" id="skillsContainer">
+                        <input type="text" id="skillInput" placeholder="Type a skill and press Enter" style="border: none; outline: none; background: transparent; flex: 1; min-width: 150px;">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="attachments">Project Files (Optional)</label>
+                    <input type="file" id="attachments" class="form-input" multiple accept=".pdf,.doc,.docx,.txt,.jpg,.png,.zip">
+                    <small style="color: #666; font-size: 0.9rem;">Max 10MB per file. Supported formats: PDF, DOC, TXT, JPG, PNG, ZIP</small>
+                </div>
+                
+                <button type="submit" class="publish-btn">
+                    <span class="btn-text">
+                        <i class="fas fa-rocket"></i>
+                        Publish Job
+                    </span>
+                    <span class="btn-loading" style="display: none;">
+                        <span class="loading"></span> Publishing...
+                    </span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" style="display: none;">
+    <!-- Modal content -->
+    </div>
+
+    <script>
+        // Global variables
+        let currentPage = 'home';
+        const skills = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSkillsInput();
+            initializeScrollEffects();
+        });
+
+        // Page navigation
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-container').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                currentPage = pageId;
+                
+                // Scroll to top
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // Navbar scroll effects
+        function initializeScrollEffects() {
+            window.addEventListener('scroll', function() {
+                const navbar = document.getElementById('navbar');
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            });
+        }
+
+        // Skills input functionality
+        function initializeSkillsInput() {
+            const skillInput = document.getElementById('skillInput');
+            const skillsContainer = document.getElementById('skillsContainer');
+
+            if (skillInput) {
+                skillInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && this.value.trim()) {
+                        e.preventDefault();
+                        addSkill(this.value.trim());
+                        this.value = '';
+                    }
+                });
+
+                skillInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && !this.value && skills.length > 0) {
+                        removeSkill(skills.length - 1);
+                    }
+                });
+            }
+        }
+
+        function addSkill(skill) {
+            if (skills.includes(skill)) return;
+            
+            skills.push(skill);
+            updateSkillsDisplay();
+        }
+
+        function removeSkill(index) {
+            skills.splice(index, 1);
+            updateSkillsDisplay();
+        }
+
+        function updateSkillsDisplay() {
+            const skillsContainer = document.getElementById('skillsContainer');
+            const skillInput = document.getElementById('skillInput');
+            
+            // Remove existing skill tags
+            const existingTags = skillsContainer.querySelectorAll('.skill-tag');
+            existingTags.forEach(tag => tag.remove());
+            
+            // Add skill tags
+            skills.forEach((skill, index) => {
+                const skillTag = document.createElement('div');
+                skillTag.className = 'skill-tag';
+                skillTag.innerHTML = `
+                    ${skill}
+                    <span class="skill-remove" onclick="removeSkill(${index})">&times;</span>
+                `;
+                skillsContainer.insertBefore(skillTag, skillInput);
+            });
+        }
+
+        // Form submissions
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleLogin();
+        });
+
+        document.getElementById('jobForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleJobSubmission();
+        });
+
+        function handleLogin() {
+            const btn = document.querySelector('.login-btn');
+            const btnText = btn.querySelector('.btn-text');
+            const btnLoading = btn.querySelector('.btn-loading');
+            
+            // Show loading state
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-flex';
+            btn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                showSuccessModal('Welcome back! You have been logged in successfully.');
+                
+                // Reset button
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+                btn.disabled = false;
+                
+                // Redirect to home after modal
+                setTimeout(() => {
+                    closeModal();
+                    showPage('home');
+                }, 2000);
+            }, 2000);
+        }
+
+        function handleJobSubmission() {
+            const btn = document.querySelector('.publish-btn');
+            const btnText = btn.querySelector('.btn-text');
+            const btnLoading = btn.querySelector('.btn-loading');
+            
+            // Validate required fields
+            const requiredFields = ['jobTitle', 'category', 'budget', 'description'];
+            let isValid = true;
+            
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.style.borderColor = '#ff6b6b';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = '#e1e8ed';
+                }
+            });
+            
+            if (!isValid) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            // Show loading state
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-flex';
+            btn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                showSuccessModal('Your job has been published successfully! Freelancers will start bidding soon.');
+                
+                // Reset form
+                document.getElementById('jobForm').reset();
+                skills.length = 0;
+                updateSkillsDisplay();
+                
+                // Reset button
+                btnText.style.display = 'inline-flex';
+                btnLoading.style.display = 'none';
+                btn.disabled = false;
+                
+                // Redirect to browse jobs after modal
+                setTimeout(() => {
+                    closeModal();
+                    showPage('home');
+                }, 3000);
+            }, 2500);
+        }
+
+        // Add parallax effect to hero section
+        window.addEventListener('scroll', function() {
+            if (currentPage === 'home') {
+                const scrolled = window.pageYOffset;
+                const hero = document.querySelector('.hero');
+                if (hero) {
+                    hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+                }
+            }
+        });
+
+        // Add intersection observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'slideInUp 0.8s ease-out forwards';
+                }
+            });
+        }, observerOptions);
+
+        // Observe category cards
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            observer.observe(card);
+        });
+
+        // Add floating animation to category icons
+        document.querySelectorAll('.category-icon').forEach((icon, index) => {
+            icon.style.animation = `float 3s ease-in-out ${index * 0.2}s infinite`;
+        });
+
+        // Enhanced search functionality
+        document.querySelector('.search-btn').addEventListener('click', function() {
+            const searchInput = document.querySelector('.search-bar input');
+            const query = searchInput.value.trim();
+            
+            if (query) {
+                showNotification(`Searching for "${query}"...`);
+                
+                // Simulate search delay
+                setTimeout(() => {
+                    showNotification(`Found 150+ freelancers for "${query}"`);
+                }, 1500);
+            }
+        });
+
+        // Add enter key support for search
+        document.querySelector('.search-bar input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.querySelector('.search-btn').click();
+            }
+        });
+
+        // Add hover effects to stats
+        document.querySelectorAll('.stat').forEach(stat => {
+            stat.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.05)';
+            });
+            
+            stat.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(-5px) scale(1)';
+            });
+        });
+
+        // Add typing effect for hero title
+        function typeWriter(element, text, speed = 100) {
+            let i = 0;
+            element.textContent = '';
+            
+            function type() {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            
+            type();
+        }
+
+        // Initialize typing effect when page loads
+        if (currentPage === 'home') {
+            const heroTitle = document.querySelector('.hero h1');
+            if (heroTitle) {
+                const originalText = heroTitle.textContent;
+                setTimeout(() => {
+                    typeWriter(heroTitle, originalText, 80);
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>

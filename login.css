@@ -1,0 +1,169 @@
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+}
+
+.login-box {
+    background: white;
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 450px;
+    animation: scaleIn 0.6s ease-out;
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header h2 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.login-header p {
+    color: #666;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-input {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e1e8ed;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 20px rgba(102,126,234,0.1);
+}
+
+.login-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102,126,234,0.3);
+}
+
+.social-login {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.social-btn {
+    flex: 1;
+    padding: 0.8rem;
+    border: 2px solid #e1e8ed;
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.social-btn:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+}
+/* Company Login Specific Styles */
+.login-box.company-version {
+    max-width: 500px;
+}
+
+.company-features {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 10px;
+}
+
+.company-features h3 {
+    color: #667eea;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.company-features ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.company-features li {
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.company-features i {
+    color: #667eea;
+    margin-right: 0.5rem;
+}
+
+/* Company Login Button */
+.login-btn.company {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+}
+
+.login-btn.company:hover {
+    background: linear-gradient(45deg, #5a6fd1, #684399);
+}
+
+/* Switch Link */
+.switch-account-type {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #666;
+}
+
+.switch-account-type a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.switch-account-type a:hover {
+    text-decoration: underline;
+}

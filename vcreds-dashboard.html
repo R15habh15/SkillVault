@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VCreds Dashboard - Skill Vault</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 0;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .nav-brand h1 {
+            color: white;
+            font-size: 1.8rem;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.purchase {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+
+        .nav-btn.sell {
+            background: linear-gradient(45deg, #4bb71b, #2d7d32);
+        }
+
+        /* Dashboard Container */
+        .dashboard {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .dashboard-header h2 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, var(--card-color), var(--card-color-dark));
+        }
+
+        .stat-card.balance {
+            --card-color: #667eea;
+            --card-color-dark: #764ba2;
+        }
+
+        .stat-card.purchased {
+            --card-color: #ff6b6b;
+            --card-color-dark: #ee5a24;
+        }
+
+        .stat-card.sold {
+            --card-color: #4bb71b;
+            --card-color-dark: #2d7d32;
+        }
+
+        .stat-card.earned {
+            --card-color: #ffa726;
+            --card-color-dark: #f57c00;
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--card-color);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-change {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .stat-change.positive {
+            background: rgba(75,183,27,0.1);
+            color: #4bb71b;
+        }
+
+        .stat-change.negative {
+            background: rgba(255,107,107,0.1);
+            color: #ff6b6b;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 3rem;
+        }
+
+        .quick-actions h3 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .action-btn.purchase {
+            background: linear-gradient(135deg, rgba(255,107,107,0.1), rgba(238,90,36,0.1));
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .action-btn.sell {
+            background: linear-gradient(135deg, rgba(75,183,27,0.1), rgba(45,125,50,0.1));
+            border-left: 4px solid #4bb71b;
+        }
+
+        .action-btn.history {
+            background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
+            border-left: 4px solid #667eea;
+        }
+
+        .action-icon {
+            font-size: 2rem;
+        }
+
+        .action-content h4 {
+            margin-bottom: 0.5rem;
+        }
+
+        .action-content p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Recent Transactions */
+        .transactions-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .transactions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .transactions-header h3 {
+            color: #333;
+        }
+
+        .view-all-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .view-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.3);
+        }
+
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .transactions-table th,
+        .transactions-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .transactions-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .transaction-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .transaction-type.purchase {
+            background: rgba(255,107,107,0.1);
+            color: #ff6b6b;
+        }
+
+        .transaction-type.sell {
+            background: rgba(75,183,27,0.1);
+            color: #4bb71b;
+        }
+
+        .transaction-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .transaction-status.completed {
+            background: rgba(75,183,27,0.1);
+            color: #4bb71b;
+        }
+
+        .transaction-status.pending {
+            background: rgba(255,165,38,0.1);
+            color: #ffa726;
+        }
+
+        .transaction-status.failed {
+            background: rgba(255,107,107,0.1);
+            color: #ff6b6b;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .nav-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .dashboard {
+                padding: 0 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .transactions-table {
+                font-size: 0.9rem;
+            }
+
+            .transactions-table th,
+            .transactions-table td {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102,126,234,.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1><i class="fas fa-vault"></i> VCreds Dashboard</h1>
+            </div>
+            <div class="nav-actions">
+                <a href="vcreds-purchase.html" class="nav-btn purchase">
+                    <i class="fas fa-shopping-cart"></i> Purchase
+                </a>
+                <a href="vcreds-selling.html" class="nav-btn sell">
+                    <i class="fas fa-money-bill-wave"></i> Sell
+                </a>
+                <a href="skill-vault-website.html" class="nav-btn">
+                    <i class="fas fa-home"></i> Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <h2><i class="fas fa-coins"></i> VCreds Dashboard</h2>
+            <p>Manage your digital credits and track transactions</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card balance">
+                <div class="stat-icon">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="stat-value" id="currentBalance">2,450</div>
+                <div class="stat-label">Current Balance</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> +5.2% this month
+                </div>
+            </div>
+
+            <div class="stat-card purchased">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="stat-value" id="totalPurchased">15,000</div>
+                <div class="stat-label">Total Purchased</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> +12.8% this month
+                </div>
+            </div>
+
+            <div class="stat-card sold">
+                <div class="stat-icon">
+                    <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <div class="stat-value" id="totalSold">8,200</div>
+                <div class="stat-label">Total Sold</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> +8.3% this month
+                </div>
+            </div>
+
+            <div class="stat-card earned">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-value" id="totalEarned">₹7,790</div>
+                <div class="stat-label">Total Earned</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> +15.1% this month
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+            <div class="actions-grid">
+                <a href="vcreds-purchase.html" class="action-btn purchase">
+                    <div class="action-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <div class="action-content">
+                        <h4>Sell VCreds</h4>
+                        <p>Convert your credits to cash</p>
+                    </div>
+                </a>
+
+                <button class="action-btn history" onclick="refreshTransactions()">
+                    <div class="action-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div class="action-content">
+                        <h4>Transaction History</h4>
+                        <p>View all your transactions</p>
+                    </div>
+                </button>
+
+                <button class="action-btn" onclick="exportData()">
+                    <div class="action-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <div class="action-content">
+                        <h4>Export Data</h4>
+                        <p>Download transaction records</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="transactions-section">
+            <div class="transactions-header">
+                <h3><i class="fas fa-list"></i> Recent Transactions</h3>
+                <a href="#" class="view-all-btn" onclick="viewAllTransactions()">
+                    <i class="fas fa-external-link-alt"></i> View All
+                </a>
+            </div>
+
+            <div class="transactions-container">
+                <table class="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Credits</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTableBody">
+                        <!-- Loading skeleton -->
+                        <tr class="skeleton-row">
+                            <td><div class="skeleton" style="height: 20px; border-radius: 4px;"></div></td>
+                            <td><div class="skeleton" style="height: 20px; border-radius: 4px;"></div></td>
+                            <td><div class="skeleton" style="height: 20px; border-radius: 4px;"></div></td>
+                            <td><div class="skeleton" style="height: 20px; border-radius: 4px;"></div></td>
+                            <td><div class="skeleton" style="height: 20px; border-radius: 4px;"></div></td>
+                            <td><div class="skeleton" style="height: 20px; border-radius: 4px;"></div></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock data - In production, this would come from your API
+        let userData = {
+            balance: 2450,
+            totalPurchased: 15000,
+            totalSold: 8200,
+            totalEarned: 7790,
+            transactions: [
+                {
+                    id: 1,
+                    date: '2024-01-15',
+                    type: 'purchase',
+                    amount: 950,
+                    credits: 1000,
+                    status: 'completed',
+                    description: 'Professional Plan Purchase'
+                },
+                {
+                    id: 2,
+                    date: '2024-01-12',
+                    type: 'sell',
+                    amount: 475,
+                    credits: 500,
+                    status: 'completed',
+                    description: 'VCreds Sale'
+                },
+                {
+                    id: 3,
+                    date: '2024-01-10',
+                    type: 'purchase',
+                    amount: 500,
+                    credits: 500,
+                    status: 'completed',
+                    description: 'Starter Plan Purchase'
+                },
+                {
+                    id: 4,
+                    date: '2024-01-08',
+                    type: 'sell',
+                    amount: 285,
+                    credits: 300,
+                    status: 'pending',
+                    description: 'VCreds Sale'
+                },
+                {
+                    id: 5,
+                    date: '2024-01-05',
+                    type: 'purchase',
+                    amount: 2250,
+                    credits: 2500,
+                    status: 'completed',
+                    description: 'Business Plan Purchase'
+                }
+            ]
+        };
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardData();
+            loadRecentTransactions();
+            
+            // Refresh data every 30 seconds
+            setInterval(refreshDashboardData, 30000);
+        });
+
+        async function loadDashboardData() {
+            try {
+                // In production, fetch from API
+                // const response = await fetch('/api/vcreds/dashboard', {
+                //     headers: { 'Authorization': `Bearer ${getAuthToken()}` }
+                // });
+                // userData = await response.json();
+
+                updateStatsCards();
+                showNotification('Dashboard loaded successfully', 'success');
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                showNotification('Failed to load dashboard data', 'error');
+            }
+        }
+
+        function updateStatsCards() {
+            document.getElementById('currentBalance').textContent = userData.balance.toLocaleString();
+            document.getElementById('totalPurchased').textContent = userData.totalPurchased.toLocaleString();
+            document.getElementById('totalSold').textContent = userData.totalSold.toLocaleString();
+            document.getElementById('totalEarned').textContent = `₹${userData.totalEarned.toLocaleString()}`;
+        }
+
+        function loadRecentTransactions() {
+            const tbody = document.getElementById('transactionsTableBody');
+            tbody.innerHTML = '';
+
+            const recentTransactions = userData.transactions.slice(0, 5);
+            
+            recentTransactions.forEach(transaction => {
+                const row = createTransactionRow(transaction);
+                tbody.appendChild(row);
+            });
+        }
+
+        function createTransactionRow(transaction) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${formatDate(transaction.date)}</td>
+                <td>
+                    <span class="transaction-type ${transaction.type}">
+                        <i class="fas fa-${transaction.type === 'purchase' ? 'shopping-cart' : 'money-bill-wave'}"></i>
+                        ${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+                    </span>
+                </td>
+                <td>₹${transaction.amount.toLocaleString()}</td>
+                <td>${transaction.credits.toLocaleString()}</td>
+                <td>
+                    <span class="transaction-status ${transaction.status}">
+                        <i class="fas fa-${getStatusIcon(transaction.status)}"></i>
+                        ${transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                    </span>
+                </td>
+                <td>
+                    <button onclick="viewTransaction(${transaction.id})" class="view-btn" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+            `;
+            return row;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function getStatusIcon(status) {
+            switch (status) {
+                case 'completed': return 'check-circle';
+                case 'pending': return 'clock';
+                case 'failed': return 'times-circle';
+                default: return 'question-circle';
+            }
+        }
+
+        function refreshDashboardData() {
+            // Simulate data refresh
+            const randomChange = () => Math.random() * 100 - 50;
+            
+            // Add some randomness to simulate real-time updates
+            if (Math.random() > 0.7) { // 30% chance of update
+                userData.balance += Math.floor(randomChange());
+                updateStatsCards();
+            }
+        }
+
+        function refreshTransactions() {
+            showNotification('Refreshing transactions...', 'info');
+            
+            // Show loading
+            const tbody = document.getElementById('transactionsTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 2rem;">
+                        <div class="loading"></div>
+                        <span style="margin-left: 1rem;">Loading transactions...</span>
+                    </td>
+                </tr>
+            `;
+            
+            // Simulate API call
+            setTimeout(() => {
+                loadRecentTransactions();
+                showNotification('Transactions updated', 'success');
+            }, 1500);
+        }
+
+        function viewTransaction(transactionId) {
+            const transaction = userData.transactions.find(t => t.id === transactionId);
+            if (!transaction) return;
+
+            const modal = createTransactionModal(transaction);
+            document.body.appendChild(modal);
+            modal.style.display = 'flex';
+        }
+
+        function createTransactionModal(transaction) {
+            const modal = document.createElement('div');
+            modal.className = 'transaction-modal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 2000;
+                backdrop-filter: blur(5px);
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 2rem;
+                    border-radius: 15px;
+                    max-width: 500px;
+                    width: 90%;
+                    position: relative;
+                    animation: scaleIn 0.3s ease-out;
+                ">
+                    <button onclick="closeModal(this)" style="
+                        position: absolute;
+                        top: 1rem;
+                        right: 1rem;
+                        background: none;
+                        border: none;
+                        font-size: 1.5rem;
+                        cursor: pointer;
+                        color: #666;
+                    ">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    
+                    <h3 style="margin-bottom: 1.5rem; color: #333;">
+                        <i class="fas fa-${transaction.type === 'purchase' ? 'shopping-cart' : 'money-bill-wave'}"></i>
+                        Transaction Details
+                    </h3>
+                    
+                    <div style="display: grid; gap: 1rem;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">Transaction ID:</span>
+                            <span style="font-weight: bold;">#${transaction.id.toString().padStart(6, '0')}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">Date:</span>
+                            <span>${formatDate(transaction.date)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">Type:</span>
+                            <span class="transaction-type ${transaction.type}">
+                                ${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+                            </span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">Amount:</span>
+                            <span style="font-weight: bold;">₹${transaction.amount.toLocaleString()}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">Credits:</span>
+                            <span style="font-weight: bold;">${transaction.credits.toLocaleString()}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">Status:</span>
+                            <span class="transaction-status ${transaction.status}">
+                                ${transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                            </span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">Description:</span>
+                            <span>${transaction.description}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return modal;
+        }
+
+        function closeModal(button) {
+            const modal = button.closest('.transaction-modal');
+            modal.style.animation = 'scaleOut 0.3s ease-out';
+            setTimeout(() => modal.remove(), 300);
+        }
+
+        function viewAllTransactions() {
+            // In production, this would navigate to a full transactions page
+            showNotification('Opening full transaction history...', 'info');
+            
+            setTimeout(() => {
+                window.location.href = '#transactions'; // Replace with actual URL
+            }, 1000);
+        }
+
+        function exportData() {
+            showNotification('Preparing data export...', 'info');
+            
+            // Simulate export process
+            setTimeout(() => {
+                const csvContent = generateCSV(userData.transactions);
+                downloadCSV(csvContent, 'vcreds-transactions.csv');
+                showNotification('Data exported successfully!', 'success');
+            }, 2000);
+        }
+
+        function generateCSV(transactions) {
+            const headers = ['Date', 'Type', 'Amount', 'Credits', 'Status', 'Description'];
+            const rows = transactions.map(t => [
+                t.date,
+                t.type,
+                t.amount,
+                t.credits,
+                t.status,
+                t.description
+            ]);
+            
+            const csvContent = [headers, ...rows]
+                .map(row => row.map(field => `"${field}"`).join(','))
+                .join('\n');
+                
+            return csvContent;
+        }
+
+        function downloadCSV(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: ${getNotificationColor(type)};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                z-index: 3000;
+                animation: slideInRight 0.3s ease-out;
+                max-width: 300px;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            `;
+            
+            notification.innerHTML = `
+                <i class="fas fa-${getNotificationIcon(type)}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function getNotificationColor(type) {
+            switch (type) {
+                case 'success': return '#4bb71b';
+                case 'error': return '#ff6b6b';
+                case 'warning': return '#ffa726';
+                default: return '#667eea';
+            }
+        }
+
+        function getNotificationIcon(type) {
+            switch (type) {
+                case 'success': return 'check-circle';
+                case 'error': return 'exclamation-circle';
+                case 'warning': return 'exclamation-triangle';
+                default: return 'info-circle';
+            }
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes scaleIn {
+                from { opacity: 0; transform: scale(0.9); }
+                to { opacity: 1; transform: scale(1); }
+            }
+            @keyframes scaleOut {
+                from { opacity: 1; transform: scale(1); }
+                to { opacity: 0; transform: scale(0.9); }
+            }
+            @keyframes slideInRight {
+                from { opacity: 0; transform: translateX(100%); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes slideOutRight {
+                from { opacity: 1; transform: translateX(0); }
+                to { opacity: 0; transform: translateX(100%); }
+            }
+            
+            .view-btn {
+                background: none;
+                border: none;
+                color: #667eea;
+                cursor: pointer;
+                font-size: 1.1rem;
+                padding: 0.5rem;
+                border-radius: 5px;
+                transition: all 0.3s ease;
+            }
+            .view-btn:hover {
+                background: rgba(102,126,234,0.1);
+                transform: scale(1.1);
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html><h4>Purchase VCreds</h4>
+                        <p>Buy credits for paying freelancers</p>
+                    </div>
+                </a>
+
+                <a href="vcreds-selling.html" class="action-btn sell">
+                    <div class="action-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="action-content">
+                        <h4>Sell VCreds</h4>
+                        <p>Exchange credits for cash</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

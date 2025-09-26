@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Vault - Purchase VCreds</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .nav-brand h1 {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .home-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .home-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Main Container */
+        .purchase-container {
+            min-height: 100vh;
+            padding: 8rem 2rem 4rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .purchase-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 3rem;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        /* Credit Plans */
+        .plans-section {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .plans-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .plans-header h2 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .plans-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .vcreds-info {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 2rem;
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vcreds-info::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1));
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+            100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        }
+
+        .vcreds-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .credit-plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .plan-card {
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .plan-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
+        }
+
+        .plan-card.popular {
+            border-color: #ff6b6b;
+            position: relative;
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .plan-amount {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-credits {
+            font-size: 1.2rem;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .plan-price {
+            font-size: 1.5rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .plan-features li {
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+        }
+
+        .plan-features i {
+            color: #4bb71b;
+        }
+
+        /* Purchase Summary */
+        .purchase-summary {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 8rem;
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        .summary-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .summary-header h3 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .selected-plan {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .selected-plan-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .selected-plan-details {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .price-breakdown {
+            margin-bottom: 2rem;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding: 0.5rem 0;
+        }
+
+        .price-row.total {
+            border-top: 2px solid #e1e8ed;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        .payment-methods {
+            margin-bottom: 2rem;
+        }
+
+        .payment-methods h4 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-option:hover {
+            border-color: #667eea;
+            background: rgba(102,126,234,0.05);
+        }
+
+        .purchase-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .purchase-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102,126,234,0.4);
+        }
+
+        .purchase-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Security Info */
+        .security-info {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(75,183,27,0.1);
+            border-radius: 10px;
+            border-left: 4px solid #4bb71b;
+        }
+
+        .security-info h5 {
+            color: #4bb71b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .security-info p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Animations */
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .purchase-wrapper {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .purchase-summary {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+            
+            .purchase-container {
+                padding: 6rem 1rem 2rem;
+            }
+            
+            .plans-section,
+            .purchase-summary {
+                padding: 2rem;
+            }
+            
+            .credit-plans {
+                grid-template-columns: 1fr;
+            }
+            
+            .plans-header h2 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Success Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 3rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: #4bb71b;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1><i class="fas fa-vault"></i> Skill Vault</h1>
+            </div>
+            <a href="skill-vault-website.html" class="home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div>
+    </nav>
+
+    <div class="purchase-container">
+        <div class="purchase-wrapper">
+            <!-- Credit Plans Section -->
+            <div class="plans-section">
+                <div class="plans-header">
+                    <h2><i class="fas fa-coins"></i> Purchase VCreds</h2>
+                    <p>Choose the perfect credit package for your business needs</p>
+                </div>
+
+                <div class="vcreds-info">
+                    <h3><i class="fas fa-info-circle"></i> About VCreds</h3>
+                    <p>VCreds are the digital currency of Skill Vault, designed to make payments to freelancers seamless and secure. Purchase credits in advance and use them to pay for completed projects. All transactions are protected and processed through Razorpay's secure payment gateway.</p>
+                </div>
+
+                <div class="credit-plans">
+                    <div class="plan-card" data-plan="starter" data-amount="500" data-price="500" data-credits="500">
+                        <div class="plan-amount">₹500</div>
+                        <div class="plan-credits">500 VCreds</div>
+                        <div class="plan-price">₹1 = 1 VCred</div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> Perfect for small projects</li>
+                            <li><i class="fas fa-check"></i> Instant credit activation</li>
+                            <li><i class="fas fa-check"></i> Secure transactions</li>
+                            <li><i class="fas fa-check"></i> 24/7 support</li>
+                        </ul>
+                    </div>
+
+                    <div class="plan-card popular" data-plan="professional" data-amount="1000" data-price="950" data-credits="1000">
+                        <div class="popular-badge">Most Popular</div>
+                        <div class="plan-amount">₹950</div>
+                        <div class="plan-credits">1000 VCreds</div>
+                        <div class="plan-price">5% Bonus Credits</div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> Great for medium projects</li>
+                            <li><i class="fas fa-check"></i> 50 bonus credits included</li>
+                            <li><i class="fas fa-check"></i> Priority support</li>
+                            <li><i class="fas fa-check"></i> Transaction history</li>
+                        </ul>
+                    </div>
+
+                    <div class="plan-card" data-plan="business" data-amount="2500" data-price="2250" data-credits="2500">
+                        <div class="plan-amount">₹2,250</div>
+                        <div class="plan-credits">2500 VCreds</div>
+                        <div class="plan-price">10% Savings</div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> Ideal for large projects</li>
+                            <li><i class="fas fa-check"></i> 250 bonus credits</li>
+                            <li><i class="fas fa-check"></i> Dedicated account manager</li>
+                            <li><i class="fas fa-check"></i> Advanced analytics</li>
+                        </ul>
+                    </div>
+
+                    <div class="plan-card" data-plan="enterprise" data-amount="5000" data-price="4250" data-credits="5000">
+                        <div class="plan-amount">₹4,250</div>
+                        <div class="plan-credits">5000 VCreds</div>
+                        <div class="plan-price">15% Savings</div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check"></i> For enterprise projects</li>
+                            <li><i class="fas fa-check"></i> 750 bonus credits</li>
+                            <li><i class="fas fa-check"></i> Custom payment terms</li>
+                            <li><i class="fas fa-check"></i> Bulk project management</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Purchase Summary -->
+            <div class="purchase-summary">
+                <div class="summary-header">
+                    <h3>Purchase Summary</h3>
+                    <p>Review your order before payment</p>
+                </div>
+
+                <div id="selectedPlan" class="selected-plan" style="display: none;">
+                    <div class="selected-plan-name" id="planName"></div>
+                    <div class="selected-plan-details" id="planDetails"></div>
+                </div>
+
+                <div id="priceBreakdown" class="price-breakdown" style="display: none;">
+                    <div class="price-row">
+                        <span>VCreds:</span>
+                        <span id="creditsAmount"></span>
+                    </div>
+                    <div class="price-row">
+                        <span>Base Amount:</span>
+                        <span id="baseAmount"></span>
+                    </div>
+                    <div class="price-row">
+                        <span>Discount:</span>
+                        <span id="discountAmount" style="color: #4bb71b;"></span>
+                    </div>
+                    <div class="price-row total">
+                        <span>Total Amount:</span>
+                        <span id="totalAmount"></span>
+                    </div>
+                </div>
+
+                <div class="payment-methods">
+                    <h4>Payment Methods</h4>
+                    <div class="payment-options">
+                        <div class="payment-option">
+                            <i class="fas fa-credit-card" style="color: #667eea;"></i>
+                            <span>Credit/Debit Cards</span>
+                        </div>
+                        <div class="payment-option">
+                            <i class="fas fa-university" style="color: #ff6b6b;"></i>
+                            <span>Net Banking</span>
+                        </div>
+                        <div class="payment-option">
+                            <i class="fas fa-wallet" style="color: #4bb71b;"></i>
+                            <span>UPI & Wallets</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="purchaseBtn" class="purchase-btn" disabled>
+                    <span class="btn-text">
+                        <i class="fas fa-shopping-cart"></i>
+                        Select a Plan to Continue
+                    </span>
+                    <span class="btn-loading" style="display: none;">
+                        <span class="loading"></span> Processing...
+                    </span>
+                </button>
+
+                <div class="security-info">
+                    <h5><i class="fas fa-shield-alt"></i> Secure Payment</h5>
+                    <p>Your payment is protected by Razorpay's industry-standard security. All transactions are encrypted and PCI DSS compliant.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3>Payment Successful!</h3>
+            <p id="successMessage"></p>
+            <button onclick="closeModal()" style="background: linear-gradient(45deg, #4bb71b, #2d7d32); border: none; color: white; padding: 0.8rem 2rem; border-radius: 25px; cursor: pointer; margin-top: 1rem;">
+                Continue
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let selectedPlan = null;
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePlanSelection();
+            initializePurchase();
+        });
+
+        function initializePlanSelection() {
+            const planCards = document.querySelectorAll('.plan-card');
+            
+            planCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    // Remove selection from all cards
+                    planCards.forEach(c => c.classList.remove('selected'));
+                    
+                    // Select current card
+                    this.classList.add('selected');
+                    
+                    // Get plan data
+                    selectedPlan = {
+                        name: this.dataset.plan,
+                        credits: this.dataset.credits,
+                        amount: parseInt(this.dataset.amount),
+                        price: parseInt(this.dataset.price)
+                    };
+                    
+                    updatePurchaseSummary();
+                });
+            });
+        }
+
+        function updatePurchaseSummary() {
+            if (!selectedPlan) return;
+            
+            const planNameEl = document.getElementById('planName');
+            const planDetailsEl = document.getElementById('planDetails');
+            const creditsAmountEl = document.getElementById('creditsAmount');
+            const baseAmountEl = document.getElementById('baseAmount');
+            const discountAmountEl = document.getElementById('discountAmount');
+            const totalAmountEl = document.getElementById('totalAmount');
+            const purchaseBtn = document.getElementById('purchaseBtn');
+            
+            // Update plan info
+            planNameEl.textContent = selectedPlan.name.charAt(0).toUpperCase() + selectedPlan.name.slice(1) + ' Plan';
+            planDetailsEl.textContent = `${selectedPlan.credits} VCreds`;
+            
+            // Calculate discount
+            const discount = selectedPlan.amount - selectedPlan.price;
+            
+            // Update price breakdown
+            creditsAmountEl.textContent = `${selectedPlan.credits} VCreds`;
+            baseAmountEl.textContent = `₹${selectedPlan.amount}`;
+            discountAmountEl.textContent = discount > 0 ? `-₹${discount}` : '₹0';
+            totalAmountEl.textContent = `₹${selectedPlan.price}`;
+            
+            // Show elements and enable button
+            document.getElementById('selectedPlan').style.display = 'block';
+            document.getElementById('priceBreakdown').style.display = 'block';
+            
+            purchaseBtn.disabled = false;
+            purchaseBtn.querySelector('.btn-text').innerHTML = `
+                <i class="fas fa-shopping-cart"></i>
+                Purchase for ₹${selectedPlan.price}
+            `;
+        }
+
+        function initializePurchase() {
+            const purchaseBtn = document.getElementById('purchaseBtn');
+            
+            purchaseBtn.addEventListener('click', function() {
+                if (!selectedPlan) return;
+                
+                initiateRazorpayPayment();
+            });
+        }
+
+        function initiateRazorpayPayment() {
+            const btn = document.getElementById('purchaseBtn');
+            const btnText = btn.querySelector('.btn-text');
+            const btnLoading = btn.querySelector('.btn-loading');
+            
+            // Show loading state
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-flex';
+            btn.disabled = true;
+            
+            // Razorpay options
+            const options = {
+                key: 'rzp_test_1234567890', // Replace with your Razorpay test key
+                amount: selectedPlan.price * 100, // Amount in paise
+                currency: 'INR',
+                name: 'Skill Vault',
+                description: `Purchase ${selectedPlan.credits} VCreds`,
+                image: '/logo.png', // Add your logo URL
+                order_id: generateOrderId(), // Generate order ID
+                handler: function(response) {
+                    handlePaymentSuccess(response);
+                },
+                prefill: {
+                    name: 'John Doe', // Get from user session
+                    email: 'john@example.com', // Get from user session
+                    contact: '9999999999' // Get from user session
+                },
+                notes: {
+                    plan: selectedPlan.name,
+                    credits: selectedPlan.credits
+                },
+                theme: {
+                    color: '#667eea'
+                },
+                modal: {
+                    ondismiss: function() {
+                        handlePaymentFailure();
+                    }
+                }
+            };
+            
+            const rzp = new Razorpay(options);
+            
+            rzp.on('payment.failed', function(response) {
+                handlePaymentError(response.error);
+            });
+            
+            // Reset button state before opening Razorpay
+            setTimeout(() => {
+                btnText.style.display = 'inline-flex';
+                btnLoading.style.display = 'none';
+                btn.disabled = false;
+            }, 1000);
+            
+            rzp.open();
+        }
+
+        function generateOrderId() {
+            // In production, this should come from your backend
+            return 'order_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function handlePaymentSuccess(response) {
+            console.log('Payment Success:', response);
+            
+            // Show success modal
+            document.getElementById('successMessage').textContent = 
+                `${selectedPlan.credits} VCreds have been added to your account successfully!`;
+            document.getElementById('successModal').style.display = 'block';
+            
+            // Here you would typically:
+            // 1. Verify payment with your backend
+            // 2. Add credits to user account
+            // 3. Send confirmation email
+            
+            // Simulate API call to add credits
+            setTimeout(() => {
+                addCreditsToAccount(selectedPlan.credits);
+            }, 1000);
+        }
+
+        function handlePaymentFailure() {
+            showNotification('Payment cancelled by user', 'warning');
+        }
+
+        function handlePaymentError(error) {
+            console.error('Payment Error:', error);
+            showNotification('Payment failed. Please try again.', 'error');
+        }
+
+        function addCreditsToAccount(credits) {
+            // Simulate adding credits to user account
+            console.log(`Adding ${credits} VCreds to user account`);
+            
+            // Update local storage or send to backend
+            const currentCredits = parseInt(localStorage.getItem('userCredits') || '0');
+            const newCredits = currentCredits + parseInt(credits);
+            localStorage.setItem('userCredits', newCredits.toString());
+            
+            console.log(`User credits updated: ${currentCredits} → ${newCredits}`);
+        }
+
+        function closeModal() {
+            document.getElementById('successModal').style.display = 'none';
+            
+            // Reset form
+            document.querySelectorAll('.plan-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            selectedPlan = null;
+            document.getElementById('selectedPlan').style.display = 'none';
+            document.getElementById('priceBreakdown').style.display = 'none';
+            
+            const purchaseBtn = document.getElementById('purchaseBtn');
+            purchaseBtn.disabled = true;
+            purchaseBtn.querySelector('.btn-text').innerHTML = `
+                <i class="fas fa-shopping-cart"></i>
+                Select a Plan to Continue
+            `;
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: ${type === 'error' ? '#ff6b6b' : type === 'warning' ? '#ffa726' : '#4bb71b'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                z-index: 3000;
+                animation: slideInRight 0.3s ease-out;
+                max-width: 300px;
+            `;
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Add slide animations for notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { opacity: 0; transform: translateX(100%); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes slideOutRight {
+                from { opacity: 1; transform: translateX(0); }
+                to { opacity: 0; transform: translateX(100%); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html

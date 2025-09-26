@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Vault - Sell VCreds</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .nav-brand h1 {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .home-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .home-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Main Container */
+        .selling-container {
+            min-height: 100vh;
+            padding: 8rem 2rem 4rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .selling-wrapper {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 3rem;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        /* Credit Balance & Sell Form */
+        .sell-form {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 8rem;
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .sell-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .sell-header h2 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #4bb71b, #2d7d32);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sell-header p {
+            color: #666;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #4bb71b, #2d7d32);
+            padding: 2rem;
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1));
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+            100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        }
+
+        .balance-amount {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .balance-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4bb71b;
+            background: white;
+            box-shadow: 0 0 20px rgba(75,183,27,0.1);
+        }
+
+        .amount-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .amount-btn {
+            padding: 0.8rem;
+            border: 2px solid #e1e8ed;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .amount-btn:hover {
+            border-color: #4bb71b;
+            background: rgba(75,183,27,0.1);
+        }
+
+        .amount-btn.selected {
+            border-color: #4bb71b;
+            background: linear-gradient(135deg, #4bb71b, #2d7d32);
+            color: white;
+        }
+
+        .conversion-info {
+            background: rgba(75,183,27,0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #4bb71b;
+        }
+
+        .conversion-rate {
+            font-weight: bold;
+            color: #2d7d32;
+            margin-bottom: 0.5rem;
+        }
+
+        .you-receive {
+            color: #666;
+        }
+
+        .sell-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(45deg, #4bb71b, #2d7d32);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .sell-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(75,183,27,0.4);
+        }
+
+        .sell-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .minimum-info {
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        /* Info Section */
+        .info-section {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        .info-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .info-header h2 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .info-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .info-cards {
+            display: grid;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 2rem;
+            border-radius: 15px;
+            border-left: 4px solid #4bb71b;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .info-card h4 {
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .steps-section {
+            margin-bottom: 3rem;
+        }
+
+        .steps-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .steps-header h3 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .step {
+            text-align: center;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #4bb71b, #2d7d32);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .step h4 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .step p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .bank-details {
+            background: rgba(102,126,234,0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .bank-details h4 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .bank-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .bank-form .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .bank-form .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .save-details-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .save-details-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102,126,234,0.3);
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Animations */
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .selling-wrapper {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .sell-form {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+            
+            .selling-container {
+                padding: 6rem 1rem 2rem;
+            }
+            
+            .sell-form,
+            .info-section {
+                padding: 2rem;
+            }
+            
+            .steps {
+                grid-template-columns: 1fr;
+            }
+            
+            .bank-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .amount-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Success Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 3rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: #4bb71b;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1><i class="fas fa-vault"></i> Skill Vault</h1>
+            </div>
+            <a href="skill-vault-website.html" class="home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div>
+    </nav>
+
+    <div class="selling-container">
+        <div class="selling-wrapper">
+            <!-- Sell Form -->
+            <div class="sell-form">
+                <div class="sell-header">
+                    <h2><i class="fas fa-money-bill-wave"></i> Sell VCreds</h2>
+                    <p>Convert your earned credits to cash</p>
+                </div>
+
+                <div class="balance-card">
+                    <div class="balance-amount" id="userBalance">2,450</div>
+                    <div class="balance-label">Available VCreds</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="sellAmount">Amount to Sell</label>
+                    <input type="number" id="sellAmount" class="form-input" 
+                           placeholder="Enter amount" min="100" max="2450">
+                </div>
+
+                <div class="amount-buttons">
+                    <button class="amount-btn" onclick="setAmount(500)">500</button>
+                    <button class="amount-btn" onclick="setAmount(1000)">1,000</button>
+                    <button class="amount-btn" onclick="setAmount(2000)">2,000</button>
+                    <button class="amount-btn" onclick="setAmount(0, 'half')">Half</button>
+                    <button class="amount-btn" onclick="setAmount(0, 'max')">Max</button>
+                    <button class="amount-btn" onclick="clearAmount()">Clear</button>
+                </div>
+
+                <div class="conversion-info">
+                    <div class="conversion-rate">1 VCred = ₹0.95</div>
+                    <div class="you-receive">
+                        You will receive: <strong id="receiveAmount">₹0</strong>
+                        <br>
+                        <small>Processing fee: ₹<span id="processingFee">0</span> (2.5%)</small>
+                    </div>
+                </div>
+
+                <button id="sellBtn" class="sell-btn" disabled>
+                    <span class="btn-text">
+                        <i class="fas fa-exchange-alt"></i>
+                        Enter Amount to Sell
+                    </span>
+                    <span class="btn-loading" style="display: none;">
+                        <span class="loading"></span> Processing...
+                    </span>
+                </button>
+
+                <div class="minimum-info">
+                    <i class="fas fa-info-circle"></i>
+                    Minimum selling amount: 100 VCreds
+                </div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="info-section">
+                <div class="info-header">
+                    <h2>How VCreds Selling Works</h2>
+                    <p>Understand the process and requirements for selling your VCreds</p>
+                </div>
+
+                <div class="info-cards">
+                    <div class="info-card">
+                        <h4><i class="fas fa-percentage"></i> Conversion Rate</h4>
+                        <p>Each VCred is converted at ₹0.95, giving you 95% of the original value. This small difference covers platform operational costs and ensures sustainable service.</p>
+                    </div>
+
+                    <div class="info-card">
+                        <h4><i class="fas fa-clock"></i> Processing Time</h4>
+                        <p>Your selling request is processed within 24-48 hours. Once approved, funds are transferred to your registered bank account within 3-5 business days.</p>
+                    </div>
+
+                    <div class="info-card">
+                        <h4><i class="fas fa-shield-alt"></i> Secure Transactions</h4>
+                        <p>All transactions are processed through Razorpay's secure payment gateway with end-to-end encryption and fraud detection mechanisms.</p>
+                    </div>
+                </div>
+
+                <div class="steps-section">
+                    <div class="steps-header">
+                        <h3>Simple 3-Step Process</h3>
+                        <p>Selling your VCreds is quick and straightforward</p>
+                    </div>
+
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <h4>Enter Amount</h4>
+                            <p>Specify how many VCreds you want to sell and see the instant conversion</p>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <h4>Verify Details</h4>
+                            <p>Confirm your bank account details for secure fund transfer</p>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <h4>Receive Payment</h4>
+                            <p>Get paid directly to your bank account within 3-5 business days</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bank-details">
+                    <h4><i class="fas fa-university"></i> Bank Account Details</h4>
+                    <p style="margin-bottom: 1.5rem; color: #666;">Please ensure your bank details are correct to avoid any delays in payment processing.</p>
+                    
+                    <form class="bank-form" id="bankForm">
+                        <div class="form-group">
+                            <label for="accountHolder">Account Holder Name</label>
+                            <input type="text" id="accountHolder" class="form-input" placeholder="Full name as per bank">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="accountNumber">Account Number</label>
+                            <input type="text" id="accountNumber" class="form-input" placeholder="Bank account number">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ifscCode">IFSC Code</label>
+                            <input type="text" id="ifscCode" class="form-input" placeholder="Bank IFSC code">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="bankName">Bank Name</label>
+                            <input type="text" id="bankName" class="form-input" placeholder="Your bank name">
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="branchName">Branch Name</label>
+                            <input type="text" id="branchName" class="form-input" placeholder="Bank branch name">
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <button type="button" class="save-details-btn" onclick="saveBankDetails()">
+                                <i class="fas fa-save"></i> Save Bank Details
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3>Sell Request Submitted!</h3>
+            <p id="successMessage"></p>
+            <button onclick="closeModal()" style="background: linear-gradient(45deg, #4bb71b, #2d7d32); border: none; color: white; padding: 0.8rem 2rem; border-radius: 25px; cursor: pointer; margin-top: 1rem;">
+                Continue
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let userBalance = 2450; // This should come from backend/API
+        let currentSellAmount = 0;
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            loadBankDetails();
+        });
+
+        function initializePage() {
+            const sellAmountInput = document.getElementById('sellAmount');
+            
+            sellAmountInput.addEventListener('input', function() {
+                const amount = parseInt(this.value) || 0;
+                updateConversion(amount);
+            });
+            
+            // Update balance display
+            updateUserBalance();
+        }
+
+        function updateUserBalance() {
+            document.getElementById('userBalance').textContent = userBalance.toLocaleString();
+        }
+
+        function setAmount(amount, type = 'fixed') {
+            const sellAmountInput = document.getElementById('sellAmount');
+            
+            // Remove selected class from all buttons
+            document.querySelectorAll('.amount-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            let finalAmount;
+            
+            if (type === 'half') {
+                finalAmount = Math.floor(userBalance / 2);
+                event.target.classList.add('selected');
+            } else if (type === 'max') {
+                finalAmount = userBalance;
+                event.target.classList.add('selected');
+            } else if (amount > 0) {
+                finalAmount = Math.min(amount, userBalance);
+                event.target.classList.add('selected');
+            }
+            
+            sellAmountInput.value = finalAmount;
+            updateConversion(finalAmount);
+        }
+
+        function clearAmount() {
+            document.getElementById('sellAmount').value = '';
+            document.querySelectorAll('.amount-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            updateConversion(0);
+        }
+
+        function updateConversion(amount) {
+            currentSellAmount = amount;
+            const conversionRate = 0.95;
+            const processingFeeRate = 0.025; // 2.5%
+            
+            const grossAmount = amount * conversionRate;
+            const processingFee = grossAmount * processingFeeRate;
+            const netAmount = grossAmount - processingFee;
+            
+            document.getElementById('receiveAmount').textContent = `₹${netAmount.toFixed(2)}`;
+            document.getElementById('processingFee').textContent = processingFee.toFixed(2);
+            
+            const sellBtn = document.getElementById('sellBtn');
+            const btnText = sellBtn.querySelector('.btn-text');
+            
+            if (amount >= 100 && amount <= userBalance) {
+                sellBtn.disabled = false;
+                btnText.innerHTML = `
+                    <i class="fas fa-exchange-alt"></i>
+                    Sell ${amount} VCreds for ₹${netAmount.toFixed(2)}
+                `;
+            } else if (amount > userBalance) {
+                sellBtn.disabled = true;
+                btnText.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Insufficient Balance
+                `;
+            } else if (amount > 0 && amount < 100) {
+                sellBtn.disabled = true;
+                btnText.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Minimum 100 VCreds Required
+                `;
+            } else {
+                sellBtn.disabled = true;
+                btnText.innerHTML = `
+                    <i class="fas fa-exchange-alt"></i>
+                    Enter Amount to Sell
+                `;
+            }
+        }
+
+        function saveBankDetails() {
+            const formData = {
+                accountHolder: document.getElementById('accountHolder').value,
+                accountNumber: document.getElementById('accountNumber').value,
+                ifscCode: document.getElementById('ifscCode').value,
+                bankName: document.getElementById('bankName').value,
+                branchName: document.getElementById('branchName').value
+            };
+            
+            // Validate form
+            for (let field in formData) {
+                if (!formData[field].trim()) {
+                    showNotification('Please fill all bank details', 'error');
+                    return;
+                }
+            }
+            
+            // Save to localStorage (in production, save to backend)
+            localStorage.setItem('bankDetails', JSON.stringify(formData));
+            showNotification('Bank details saved successfully!', 'success');
+        }
+
+        function loadBankDetails() {
+            const savedDetails = localStorage.getItem('bankDetails');
+            if (savedDetails) {
+                const details = JSON.parse(savedDetails);
+                
+                document.getElementById('accountHolder').value = details.accountHolder || '';
+                document.getElementById('accountNumber').value = details.accountNumber || '';
+                document.getElementById('ifscCode').value = details.ifscCode || '';
+                document.getElementById('bankName').value = details.bankName || '';
+                document.getElementById('branchName').value = details.branchName || '';
+            }
+        }
+
+        // Sell button click handler
+        document.getElementById('sellBtn').addEventListener('click', function() {
+            if (currentSellAmount < 100 || currentSellAmount > userBalance) {
+                return;
+            }
+            
+            // Check if bank details are saved
+            const bankDetails = localStorage.getItem('bankDetails');
+            if (!bankDetails) {
+                showNotification('Please save your bank details first', 'warning');
+                return;
+            }
+            
+            initiateSellProcess();
+        });
+
+        function initiateSellProcess() {
+            const btn = document.getElementById('sellBtn');
+            const btnText = btn.querySelector('.btn-text');
+            const btnLoading = btn.querySelector('.btn-loading');
+            
+            // Show loading state
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-flex';
+            btn.disabled = true;
+            
+            // Simulate API call to create sell order
+            setTimeout(() => {
+                // In production, this would:
+                // 1. Create sell order in backend
+                // 2. Validate bank details
+                // 3. Deduct credits from user account
+                // 4. Initiate bank transfer via Razorpay
+                
+                const conversionRate = 0.95;
+                const processingFeeRate = 0.025;
+                const grossAmount = currentSellAmount * conversionRate;
+                const processingFee = grossAmount * processingFeeRate;
+                const netAmount = grossAmount - processingFee;
+                
+                // Deduct credits from user balance
+                userBalance -= currentSellAmount;
+                updateUserBalance();
+                
+                // Show success modal
+                document.getElementById('successMessage').innerHTML = `
+                    Your request to sell ${currentSellAmount} VCreds has been submitted successfully!<br><br>
+                    <strong>Amount to receive: ₹${netAmount.toFixed(2)}</strong><br>
+                    Expected processing time: 3-5 business days
+                `;
+                document.getElementById('successModal').style.display = 'block';
+                
+                // Reset form
+                document.getElementById('sellAmount').value = '';
+                currentSellAmount = 0;
+                updateConversion(0);
+                
+                // Reset button
+                btnText.style.display = 'inline-flex';
+                btnLoading.style.display = 'none';
+                btn.disabled = true;
+                btnText.innerHTML = `
+                    <i class="fas fa-exchange-alt"></i>
+                    Enter Amount to Sell
+                `;
+                
+                // Save transaction history (in production, this would be handled by backend)
+                saveTransactionHistory({
+                    type: 'sell',
+                    amount: currentSellAmount,
+                    netAmount: netAmount.toFixed(2),
+                    processingFee: processingFee.toFixed(2),
+                    status: 'pending',
+                    date: new Date().toISOString()
+                });
+                
+            }, 2000);
+        }
+
+        function saveTransactionHistory(transaction) {
+            const history = JSON.parse(localStorage.getItem('transactionHistory') || '[]');
+            history.unshift(transaction);
+            localStorage.setItem('transactionHistory', JSON.stringify(history.slice(0, 50))); // Keep last 50 transactions
+        }
+
+        function closeModal() {
+            document.getElementById('successModal').style.display = 'none';
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: ${type === 'error' ? '#ff6b6b' : type === 'warning' ? '#ffa726' : type === 'success' ? '#4bb71b' : '#667eea'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                z-index: 3000;
+                animation: slideInRight 0.3s ease-out;
+                max-width: 300px;
+            `;
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Add slide animations for notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { opacity: 0; transform: translateX(100%); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes slideOutRight {
+                from { opacity: 1; transform: translateX(0); }
+                to { opacity: 0; transform: translateX(100%); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
